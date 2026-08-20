@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: crowdpoll
+          POSTGRES_PASSWORD: crowdpoll
+          POSTGRES_DB: crowdpoll
+        ports: ["5435:5432"]
+        options: >-
+          --health-cmd "pg_isready -U crowdpoll"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://crowdpoll:crowdpoll@127.0.0.1:5435/crowdpoll
+      BETTER_AUTH_SECRET: ci-only-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Apply schema
+        run: npx drizzle-kit push --force
+      - run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t crowdpoll:ci .
