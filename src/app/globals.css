@@ -59,7 +59,9 @@ body {
   animation: pulse-dot 1.6s ease-in-out infinite;
 }
 
-/* Poll result bars grow smoothly as votes arrive. */
+/* Poll result bars grow smoothly as votes arrive — scaleX keeps the
+   animation on the compositor instead of triggering layout. */
 .bar-fill {
-  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }

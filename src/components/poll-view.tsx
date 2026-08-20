@@ -47,8 +47,8 @@ export function PollDisplay({
           return (
             <div key={option.id} className="relative overflow-hidden rounded-md border border-edge bg-panel-2">
               <div
-                className={`bar-fill absolute inset-y-0 left-0 ${mine ? "bg-pulse/25" : "bg-edge/60"}`}
-                style={{ width: `${share}%` }}
+                className={`bar-fill absolute inset-y-0 left-0 w-full ${mine ? "bg-pulse/25" : "bg-edge/60"}`}
+                style={{ transform: `scaleX(${share / 100})` }}
               />
               <div className="relative flex items-center justify-between px-4 py-2.5 text-sm">
                 <span className={mine ? "font-medium text-pulse" : ""}>
